@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lidy Estética - Dashboard</title>
+    <style>
+        :root {
+            --primary: #7C4DFF;
+            --secondary: #4DD0E1;
+            --accent: #FF5A50;
+            --background: #F9F9FF;
+            --surface: #FFFFFF;
+            --text: #2D2D34;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+            position: fixed;
+            height: 100%;
+            z-index: 100;
+        }
+
+        .sidebar h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(125, 77, 255, 0.1);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.2rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item:hover {
+            background: rgba(125, 77, 255, 0.05);
+            transform: translateX(4px);
+        }
+
+        .menu-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex-grow: 1;
+            padding: 2rem;
+        }
+
+        .calendar-container {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            max-width: 800px;
+        }
+
+        .calendar-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .calendar-cell {
+            padding: 1rem;
+            background: var(--surface);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-cell:hover {
+            background: #f8f7ff;
+            z-index: 2;
+            transform: scale(1.02);
+            box-shadow: var(--shadow);
+        }
+
+        .day-number {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: auto;
+        }
+
+        .attendants {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty-cell {
+            background: var(--background);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .close-button:hover {
+            color: var(--accent);
+        }
+
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-content label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus,
+        .modal-content textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .modal-content button[type="submit"] {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .modal-content button[type="submit"]:hover {
+            background: var(--secondary);
+        }
+
+        .previous-month .day-number,
+        .next-month .day-number {
+            color: #999;
+            opacity: 0.7;
+        }
+
+        /* New styles for the client registration modal */
+        /* Add these styles to the existing CSS */
+        .modal-content {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            /* Limit the height to 90% of the viewport height */
+            overflow-y: auto;
+            /* Enable vertical scrolling if content overflows */
+            position: relative;
+        }
+
+        .modal-content h1 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .modal-content label {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus,
+        .modal-content textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .modal-content button[type="submit"] {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+
+        .modal-content button[type="submit"]:hover {
+            background: var(--secondary);
+        }
+
+        .error-message {
+            color: var(--accent);
+            font-size: 0.875rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h1>Lidy Estética</h1>
+        <a href="#" class="menu-item">📅 Agenda</a>
+        <a href="clientes.html" class="menu-item">👥 Clientes</a>
+        <a href="#" class="menu-item">💼 Vendas</a>
+        <a href="services.html" class="menu-item">💅 Serviços</a>
+        <a href="#" id="agendarButton" class="menu-item">✨ Novo Agendamento</a>
+        <!-- New menu item for adding clients -->
+        <a href="#" id="addClientButton" class="menu-item">➕ Adicionar Clientes</a>
+    </div>
+
+    <div class="main-content">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button class="nav-button" id="prev-month">← Anterior</button>
+                <div>
+                    <span id="month-name"></span>
+                    <span id="year"></span>
+                </div>
+                <button class="nav-button" id="next-month">Próximo →</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Agendamento -->
+    <div id="agendamentoModal" class="modal">
+        <div class="modal-content">
+            <button class="close-button" id="closeModal">&times;</button>
+            <h1>Agendar Procedimento</h1>
+            <form>
+                <label for="client">Nome do Cliente:</label>
+                <select id="client" name="client" required>
+                    <option value="" disabled selected>Selecione o cliente</option>
+                </select>
+
+                <label for="procedure">Procedimento:</label>
+                <select id="procedure" name="procedure" required>
+                    <option value="" disabled selected>Selecione o procedimento</option>
+                </select>
+
+                <label for="employee">Funcionário:</label>
+                <select id="employee" name="employee" required>
+                    <option value="" disabled selected>Selecione o funcionário</option>
+                </select>
+
+                <label for="date">Data:</label>
+                <input type="date" id="date" name="date" required>
+
+                <label for="time">Hora:</label>
+                <input type="time" id="time" name="time" required>
+
+                <label for="notes">Observações:</label>
+                <textarea id="notes" name="notes" rows="4" placeholder="Observações adicionais (opcional)"></textarea>
+
+                <button type="submit">Agendar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Modal for Adicionar Clientes -->
+    <div id="addClientModal" class="modal">
+        <div class="modal-content">
+            <button class="close-button" id="closeClientModal">&times;</button>
+            <h1>Adicionar Cliente</h1>
+            <form id="clientForm">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+                <div class="error-message" id="nomeError"></div>
+
+                <label for="cpf">CPF:</label>
+                <input type="text" id="cpf" name="cpf">
+
+                <label for="telefone">Telefone:</label>
+                <input type="text" id="telefone" name="telefone" required>
+                <div class="error-message" id="telefoneError"></div>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <div class="error-message" id="emailError"></div>
+
+                <label for="endereco">Endereço:</label>
+                <input type="text" id="endereco" name="endereco">
+
+                <label for="cidade">Cidade:</label>
+                <input type="text" id="cidade" name="cidade">
+
+                <label for="estado">Estado:</label>
+                <input type="text" id="estado" name="estado">
+
+                <label for="cep">CEP:</label>
+                <input type="text" id="cep" name="cep">
+
+                <label for="dataNascimento">Data de Nascimento:</label>
+                <input type="date" id="dataNascimento" name="dataNascimento" required>
+                <div class="error-message" id="dataNascimentoError"></div>
+
+                <label for="sexo">Sexo:</label>
+                <select id="sexo" name="sexo" required>
+                    <option value="" disabled selected>Selecione o sexo</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                    <option value="O">Outro</option>
+                </select>
+                <div class="error-message" id="sexoError"></div>
+
+                <label for="observacoes">Observações:</label>
+                <textarea id="observacoes" name="observacoes" rows="4" required></textarea>
+                <div class="error-message" id="observacoesError"></div>
+
+                <button type="submit">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
+        const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+        let appointmentsData = []; // Store appointments data
+
+        // Fetch appointments from the backend API
+        function fetchAppointments() {
+            fetch('http://localhost:8080/clientes/agendamentos')
+                .then(response => response.json())
+                .then(data => {
+                    appointmentsData = data;
+                    generateCalendar(currentMonth, currentYear);
+                })
+                .catch(error => console.error('Error fetching appointments:', error));
+        }
+
+        // Function to count appointments for a specific date
+        function countAppointmentsForDate(date) {
+            const dateString = date.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+            return appointmentsData.filter(appointment => appointment.data.startsWith(dateString)).length;
+        }
+
+        function generateCalendar(month, year) {
+            const calendarGrid = document.getElementById('calendar-grid');
+            calendarGrid.innerHTML = '';
+
+            // Add weekday headers
+            weekDays.forEach(day => {
+                const headerCell = document.createElement('div');
+                headerCell.className = 'calendar-cell';
+                headerCell.textContent = day;
+                headerCell.style.fontWeight = '600';
+                headerCell.style.color = 'var(--primary)';
+                calendarGrid.appendChild(headerCell);
+            });
+
+            const firstDay = new Date(year, month, 1).getDay(); // 0 (Domingo) to 6 (Sábado)
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Add previous month's days
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = 0; i < firstDay; i++) {
+                const day = prevMonthLastDay - (firstDay - 1 - i);
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-cell previous-month';
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+
+                dayCell.appendChild(dayNumber);
+                calendarGrid.appendChild(dayCell);
+            }
+
+            // Add current month's days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-cell';
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+
+                const attendants = document.createElement('div');
+                attendants.className = 'attendants';
+
+                // Count appointments for this day
+                const currentDate = new Date(year, month, day);
+                const appointmentCount = countAppointmentsForDate(currentDate);
+                attendants.textContent = `${appointmentCount} atendimento${appointmentCount !== 1 ? 's' : ''}`;
+
+                dayCell.appendChild(dayNumber);
+                dayCell.appendChild(attendants);
+                calendarGrid.appendChild(dayCell);
+
+                // Add click event to redirect to day-details.html with the selected date
+                dayCell.addEventListener('click', () => {
+                    const selectedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    window.location.href = `day-details.html?data=${selectedDate}`;
+                });
+            }
+
+            // Add next month's days
+            const totalCells = firstDay + daysInMonth;
+            const remainingCells = (7 - (totalCells % 7)) % 7;
+            let nextMonthDay = 1;
+            for (let i = 0; i < remainingCells; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-cell next-month';
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = nextMonthDay;
+
+                dayCell.appendChild(dayNumber);
+                calendarGrid.appendChild(dayCell);
+                nextMonthDay++;
+            }
+
+            document.getElementById('month-name').textContent = monthNames[month];
+            document.getElementById('year').textContent = year;
+        }
+
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+
+        // Fetch appointments and generate the calendar when the page loads
+        fetchAppointments();
+
+        document.getElementById('prev-month').addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+
+        document.getElementById('next-month').addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+
+        // Modal functionality (unchanged)
+        const modal = document.getElementById('agendamentoModal');
+        const agendarButton = document.getElementById('agendarButton');
+        const closeModalButton = document.getElementById('closeModal');
+
+        agendarButton.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        closeModalButton.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        document.getElementById('agendarButton').addEventListener('click', () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const currentDate = `${year}-${month}-${day}`;
+
+            fetchClientsAndProcedures(currentDate);
+            modal.style.display = 'flex';
+        });
+
+        function fetchClientsAndProcedures(selectedDate) {
+            fetch('http://localhost:8080/clientes')
+                .then(response => response.json())
+                .then(data => {
+                    const clientSelect = document.getElementById('client');
+                    clientSelect.innerHTML = '<option value="" disabled selected>Selecione o cliente</option>';
+                    data.forEach(client => {
+                        const option = document.createElement('option');
+                        option.value = client.id;
+                        option.textContent = client.nome;
+                        clientSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching clients:', error));
+
+            fetch('http://localhost:8080/procedimentos')
+                .then(response => response.json())
+                .then(data => {
+                    const procedureSelect = document.getElementById('procedure');
+                    procedureSelect.innerHTML = '<option value="" disabled selected>Selecione o procedimento</option>'; // Limpa opções existentes
+                    data.forEach(procedure => {
+                        const option = document.createElement('option');
+                        option.value = procedure.id;
+                        option.textContent = procedure.nome; // Certifique-se de usar 'nome' e não 'name'
+                        procedureSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching procedures:', error));
+                
+            fetch('http://localhost:8080/funcionarios')
+                .then(response => response.json())
+                .then(data => {
+                    const employeeSelect = document.getElementById('employee');
+                    employeeSelect.innerHTML = '<option value="" disabled selected>Selecione o funcionário</option>'; // Limpa opções existentes
+                    data.forEach(employee => {
+                        const option = document.createElement('option');
+                        option.value = employee.id;
+                        option.textContent = employee.nome; // Usando o campo 'nome' retornado pelo backend
+                        employeeSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching employees:', error));
+            document.getElementById('date').value = selectedDate;
+        }
+
+        const addClientModal = document.getElementById('addClientModal');
+        const addClientButton = document.getElementById('addClientButton');
+        const closeClientModalButton = document.getElementById('closeClientModal');
+
+        addClientButton.addEventListener('click', () => {
+            addClientModal.style.display = 'flex';
+        });
+
+        closeClientModalButton.addEventListener('click', () => {
+            addClientModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === addClientModal) {
+                addClientModal.style.display = 'none';
+            }
+        });
+
+        // Form validation and submission
+        document.getElementById('clientForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            // Clear previous error messages
+            document.querySelectorAll('.error-message').forEach(error => error.textContent = '');
+
+            // Get form values
+            const nome = document.getElementById('nome').value.trim();
+            const cpf = document.getElementById('cpf').value.trim();
+            const telefone = document.getElementById('telefone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const endereco = document.getElementById('endereco').value.trim();
+            const cidade = document.getElementById('cidade').value.trim();
+            const estado = document.getElementById('estado').value.trim();
+            const cep = document.getElementById('cep').value.trim();
+            const dataNascimento = document.getElementById('dataNascimento').value.trim();
+            const sexo = document.getElementById('sexo').value.trim();
+            const observacoes = document.getElementById('observacoes').value.trim();
+
+            // Validate required fields
+            let isValid = true;
+
+            if (!nome) {
+                document.getElementById('nomeError').textContent = 'Nome é obrigatório.';
+                isValid = false;
+            }
+
+            if (!telefone) {
+                document.getElementById('telefoneError').textContent = 'Telefone é obrigatório.';
+                isValid = false;
+            }
+
+            if (!email) {
+                document.getElementById('emailError').textContent = 'Email é obrigatório.';
+                isValid = false;
+            }
+
+            if (!dataNascimento) {
+                document.getElementById('dataNascimentoError').textContent = 'Data de Nascimento é obrigatória.';
+                isValid = false;
+            }
+
+            if (!sexo) {
+                document.getElementById('sexoError').textContent = 'Sexo é obrigatório.';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Prepare the client data
+                const clientData = {
+                    nome: nome,
+                    cpf: cpf,
+                    telefone: telefone,
+                    email: email,
+                    endereco: endereco,
+                    cidade: cidade,
+                    estado: estado,
+                    cep: cep,
+                    dataNascimento: dataNascimento,
+                    sexo: sexo,
+                    observacoes: observacoes
+                };
+
+                // Send the data to the backend
+                fetch('http://localhost:8080/clientes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(clientData)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        alert('Cliente adicionado com sucesso!');
+                        addClientModal.style.display = 'none';
+                        document.getElementById('clientForm').reset();
+                    })
+                    .catch(error => {
+                        console.error('Erro ao adicionar cliente:', error);
+                        alert('Erro ao adicionar cliente. Tente novamente.');
+                    });
+            }
+        });
+    </script>
+</body>
+
+</html>
