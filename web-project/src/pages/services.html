@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lidy Estética - Serviços</title>
+    <style>
+        :root {
+            --primary: #7C4DFF;
+            --secondary: #4DD0E1;
+            --accent: #FF5A50;
+            --background: #F9F9FF;
+            --surface: #FFFFFF;
+            --text: #2D2D34;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+            position: fixed;
+            height: 100%;
+            z-index: 100;
+        }
+
+        .sidebar h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(125, 77, 255, 0.1);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.2rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:hover {
+            background: rgba(125, 77, 255, 0.05);
+            transform: translateX(4px);
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex-grow: 1;
+            padding: 2rem;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .services-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .service-header:hover {
+            background: #f8f7ff;
+        }
+
+        .service-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .toggle-arrow {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .service-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 0 1.5rem 1.5rem;
+            max-height: 0;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .service-details.active {
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        .service-details div {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .service-details label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .service-details span {
+            color: #666;
+        }
+
+        .edit-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .edit-button:hover {
+            background: var(--secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h1>Lidy Estética</h1>
+        <a href="landingPage.html" class="menu-item">📅 Agenda</a>
+        <a href="clientes.html" class="menu-item">👥 Clientes</a>
+        <a href="#" class="menu-item">💼 Vendas</a>
+        <a href="services.html" class="menu-item">💅 Serviços</a>
+        <a href="#" class="menu-item">✨ Novo Agendamento</a>
+        <!-- Add the "Adicionar Clientes" button without the modal functionality -->
+        <a href="landingPage.html" class="menu-item">➕ Adicionar Clientes</a>
+    </div>
+
+    <div class="main-content">
+        <div class="search-container">
+            <input
+                type="text"
+                class="search-input"
+                placeholder="Pesquisar serviço por nome..."
+                id="searchInput"
+            />
+        </div>
+        <div class="services-container" id="servicesContainer">
+            <!-- Service cards will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        let allServices = []; // Store all services for filtering
+
+        // Fetch services from API
+        fetch('http://localhost:8080/procedimentos')
+            .then(response => response.json())
+            .then(services => {
+                allServices = services; // Save all services for filtering
+                renderServices(services); // Render services initially
+            })
+            .catch(error => console.error('Error fetching services:', error));
+
+        // Render services based on the provided list
+        function renderServices(services) {
+            const container = document.getElementById('servicesContainer');
+            container.innerHTML = ''; // Clear existing cards
+
+            services.forEach(service => {
+                const serviceCard = document.createElement('div');
+                serviceCard.className = 'service-card';
+                serviceCard.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-name">${service.nome}</div>
+                        <div class="toggle-arrow">▼</div>
+                    </div>
+                    <div class="service-details">
+                        <div>
+                            <label>Duração:</label>
+                            <span>${service.duracao}</span>
+                        </div>
+                        <div>
+                            <label>Valor:</label>
+                            <span>R$ ${service.valor}</span>
+                        </div>
+                        <button class="edit-button">Editar</button>
+                    </div>
+                `;
+
+                // Toggle details visibility
+                const header = serviceCard.querySelector('.service-header');
+                const details = serviceCard.querySelector('.service-details');
+                const arrow = serviceCard.querySelector('.toggle-arrow');
+                
+                header.addEventListener('click', () => {
+                    details.classList.toggle('active');
+                    arrow.style.transform = details.classList.contains('active') 
+                        ? 'rotate(180deg)' 
+                        : 'rotate(0deg)';
+                });
+
+                container.appendChild(serviceCard);
+            });
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredServices = allServices.filter(service =>
+                service.nome.toLowerCase().includes(searchTerm)
+            );
+            renderServices(filteredServices); // Re-render filtered services
+        });
+    </script>
+</body>
+
+</html>
