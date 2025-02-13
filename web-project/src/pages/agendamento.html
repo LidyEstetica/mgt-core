@@ -184,8 +184,17 @@
             <input type="date" id="date" name="date" required>
 
             <label for="time">Hora:</label>
-            <input type="time" id="time" name="time" required>
-
+            <select id="time" name="time" required>
+                <option value="" disabled selected>Selecione a hora</option>
+                <!-- Generate options for hours -->
+                <script>
+                    for (let i = 0; i < 24; i++) {
+                        const hour = String(i).padStart(2, '0'); // Pad with leading zero
+                        document.write(`<option value="${hour}:00">${hour}:00</option>`);
+                    }
+                </script>
+            </select>
+            
             <label for="notes">Observações:</label>
             <textarea id="notes" name="notes" rows="4" placeholder="Observações adicionais (opcional)"></textarea>
 
