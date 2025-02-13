@@ -26,4 +26,8 @@ public class AgendamentoService {
     public List<Agendamento> getSpecificDate(LocalDate data) {
         return agendamentoRepository.findByDate(data);
     }
+
+    public boolean existsAgendamento(LocalDateTime data, int funcionarioId) {
+        return !agendamentoRepository.findDisponibility(data, funcionarioId).isEmpty();
+    }
 }

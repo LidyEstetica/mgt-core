@@ -19,4 +19,8 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(23, 59, 59);
         return findByDate(startOfDay, endOfDay);
-    }}
+    }
+
+    @Query("SELECT a FROM Agendamento a WHERE a.data = :dateTime AND a.funcionario.id = :idFuncionario")
+    List<Agendamento> findDisponibility(@Param("dateTime") LocalDateTime dateTime, int idFuncionario);
+}

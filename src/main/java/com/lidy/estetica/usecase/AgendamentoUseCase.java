@@ -38,21 +38,24 @@ public class AgendamentoUseCase {
         return agendamentoService.getSpecificDate(data);
     }
 
-    public void createAgendamento(LocalDateTime data, int idProcedimento, int quantidadeProcedimento, int idCliente, int idFuncionario) {
+    public boolean createAgendamento(LocalDateTime data, int idProcedimento, int quantidadeProcedimento, int idCliente, int idFuncionario) {
+        if (!agendamentoService.existsAgendamento(data, idFuncionario)) {
+            var procedimento = procedimentoService.getProcedimentoById(idProcedimento);
+            var cliente = clienteService.getById(idCliente);
+            var funcionario = funcionarioService.getById(idFuncionario);
 
-        var procedimento = procedimentoService.getProcedimentoById(idProcedimento);
-        var cliente = clienteService.getById(idCliente);
-        var funcionario = funcionarioService.getById(idFuncionario);
+            Agendamento agendamento = Agendamento.builder()
+                    .cliente(cliente)
+                    .procedimento(procedimento)
+                    .funcionario(funcionario)
+                    .data(data)
+                    .status(AGENDADO.getDescricao())
+                    .quantidade(quantidadeProcedimento)
+                    .build();
 
-        Agendamento agendamento = Agendamento.builder()
-                .cliente(cliente)
-                .procedimento(procedimento)
-                .funcionario(funcionario)
-                .data(data)
-                .status(AGENDADO.getDescricao())
-                .quantidade(quantidadeProcedimento)
-                .build();
-
-        agendamentoService.createAgendamento(agendamento);
+            agendamentoService.createAgendamento(agendamento);
+            return true;
+        }
+        return false;
     }
 }

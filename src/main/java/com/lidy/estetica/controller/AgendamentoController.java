@@ -20,12 +20,15 @@ public class AgendamentoController {
 
     @PostMapping("/cliente")
     public ResponseEntity<Agendamento> createAgendamento(@RequestBody AgendamentoDTO agendamentoRequest) {
-        agendamentoUseCase.createAgendamento(
+        boolean agendamento = agendamentoUseCase.createAgendamento(
                 agendamentoRequest.getData(),
                 agendamentoRequest.getIdProcedimento(),
                 agendamentoRequest.getQuantidadeProcedimento(),
                 agendamentoRequest.getIdCliente(),
                 agendamentoRequest.getIdFuncionario());
+        if (!agendamento) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 
