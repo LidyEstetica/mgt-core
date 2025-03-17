@@ -25,7 +25,8 @@ public class AgendamentoController {
                 agendamentoRequest.getIdProcedimento(),
                 agendamentoRequest.getQuantidadeProcedimento(),
                 agendamentoRequest.getIdCliente(),
-                agendamentoRequest.getIdFuncionario());
+                agendamentoRequest.getIdFuncionario(),
+                agendamentoRequest.getObservacoes());
         if (!agendamento) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         }

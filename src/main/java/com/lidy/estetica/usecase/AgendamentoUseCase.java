@@ -38,7 +38,7 @@ public class AgendamentoUseCase {
         return agendamentoService.getSpecificDate(data);
     }
 
-    public boolean createAgendamento(LocalDateTime data, int idProcedimento, int quantidadeProcedimento, int idCliente, int idFuncionario) {
+    public boolean createAgendamento(LocalDateTime data, int idProcedimento, int quantidadeProcedimento, int idCliente, int idFuncionario, String observacoes) {
         if (!agendamentoService.existsAgendamento(data, idFuncionario)) {
             var procedimento = procedimentoService.getProcedimentoById(idProcedimento);
             var cliente = clienteService.getById(idCliente);
@@ -51,6 +51,7 @@ public class AgendamentoUseCase {
                     .data(data)
                     .status(AGENDADO.getDescricao())
                     .quantidade(quantidadeProcedimento)
+                    .observacao(observacoes)
                     .build();
 
             agendamentoService.createAgendamento(agendamento);

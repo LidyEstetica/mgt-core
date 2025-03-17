@@ -16,6 +16,7 @@ public class AgendamentoDTO {
     private int idCliente;
     private int idFuncionario;
     private LocalDateTime data;
+    private String observacoes;
 
 
 }
