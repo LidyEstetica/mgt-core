@@ -1,24 +1,15 @@
-# Etapa 1: Construção do JAR
-FROM maven:3.9.8-amazoncorretto-21 AS build
+# Use the Eclipse alpine official image
+# https://hub.docker.com/_/eclipse-temurin
+FROM eclipse-temurin:21-jdk-alpine
 
-# Definir o diretório de trabalho no contêiner
+# Create and change to the app directory.
 WORKDIR /app
 
-# Copiar os arquivos do projeto para o contêiner
-COPY pom.xml .
-COPY src ./src
+# Copy files to the container image
+COPY . ./
 
-# Compilar o projeto e gerar o JAR
-RUN mvn clean package -DskipTests
+# Build the app.
+RUN ./mvnw -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean dependency:list install
 
-# Etapa 2: Execução do JAR
-FROM openjdk:21-oracle
-
-# Definir o diretório de trabalho no contêiner
-WORKDIR /app
-
-# Copiar o JAR gerado na etapa de construção para o contêiner
-COPY --from=build /app/target/estetica-jar-with-dependencies.jar /app/estetica-jar-with-dependencies.jar
-
-# Definir o ponto de entrada para executar o JAR
-ENTRYPOINT ["java", "-jar", "/app/estetica-jar-with-dependencies.jar"]
+# Run the app by dynamically finding the JAR file in the target directory
+CMD ["sh", "-c", "java -jar target/*.jar"]
