@@ -124,7 +124,7 @@
                         <p><span class="label">Procedimento:</span> ${appointment.procedimento.nome}</p>
                         <p><span class="label">Funcionário:</span> ${appointment.funcionario.nome}</p>
                         <p><span class="label">Horário:</span> ${new Date(appointment.data).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                        <p><span class="label">Observações:</span> ${appointment.cliente.observacoes || 'Nenhuma'}</p>
+                        <p><span class="label">Observações:</span> ${appointment.observacao || 'Nenhuma'}</p>
                     `;
 
                         card.innerHTML = htmlContent;

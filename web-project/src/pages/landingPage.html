@@ -626,6 +626,7 @@
             const idFuncionario = document.getElementById('employee').value;
             const data = document.getElementById('date').value;
             const time = document.getElementById('time').value; // This will now be in "HH:00" format
+            const notes = document.getElementById('notes').value;
 
             const dataHora = `${data}T${time}:00`; // Append ":00" for seconds
 
@@ -641,7 +642,8 @@
                     quantidadeProcedimento: quantidadeProcedimento,
                     idCliente: parseInt(idCliente),
                     idFuncionario: parseInt(idFuncionario),
-                    data: dataHora
+                    data: dataHora,
+                    observacoes: notes
                 })
             })
                 .then(response => {
@@ -789,7 +791,6 @@
                     observacoes: observacoes
                 };
 
-                // Send the data to the backend
                 fetch('http://localhost:8080/clientes', {
                     method: 'POST',
                     headers: {
@@ -797,12 +798,6 @@
                     },
                     body: JSON.stringify(clientData)
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
                     .then(data => {
                         alert('Cliente adicionado com sucesso!');
                         addClientModal.style.display = 'none';
