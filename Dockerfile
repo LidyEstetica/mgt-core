@@ -18,7 +18,7 @@ FROM openjdk:21-oracle
 WORKDIR /app
 
 # Copiar o JAR gerado na etapa de construção para o contêiner
-COPY --from=build /app/target/estetica-jar-with-dependencies.jar /app/estetica-jar-with-dependencies.jar
+COPY --from=build /app/target/estetica-0.0.1-SNAPSHOT.jar /app/estetica-0.0.1-SNAPSHOT.jar
 
 # Definir o ponto de entrada para executar o JAR
-ENTRYPOINT ["java", "-jar", "/app/estetica-jar-with-dependencies.jar"]
+ENTRYPOINT ["java", "-jar", "/app/estetica-0.0.1-SNAPSHOT.jar"]
