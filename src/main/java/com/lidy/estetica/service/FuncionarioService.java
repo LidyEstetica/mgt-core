@@ -2,23 +2,24 @@ package com.lidy.estetica.service;
 
 import com.lidy.estetica.model.Funcionario;
 import com.lidy.estetica.repository.FuncionarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class FuncionarioService {
 
-    @Autowired
-    private FuncionarioRepository funcionarioRepository;
+    private final FuncionarioRepository funcionarioRepository;
 
     public List<Funcionario> getAllFuncs() {
         return funcionarioRepository.findAll();
     }
 
-    public Funcionario getById(int id) {
-        return funcionarioRepository.getReferenceById(id);
+    public Optional<Funcionario> getById(int id) {
+        return funcionarioRepository.findById(id);
     }
 
 }

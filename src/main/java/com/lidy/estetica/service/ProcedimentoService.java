@@ -2,19 +2,20 @@ package com.lidy.estetica.service;
 
 import com.lidy.estetica.model.Procedimento;
 import com.lidy.estetica.repository.ProcedimentoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProcedimentoService {
 
-    @Autowired
-    private ProcedimentoRepository procedimentoRepository;
+    private final ProcedimentoRepository procedimentoRepository;
 
-    public Procedimento getProcedimentoById(int id) {
-        return procedimentoRepository.findById(id).orElse(null);
+    public Optional<Procedimento> getProcedimentoById(int id) {
+        return procedimentoRepository.findById(id);
     }
 
     public List<Procedimento> getAll() {
