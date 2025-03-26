@@ -14,7 +14,7 @@ public class FuncionarioUsecase {
     private FuncionarioService funcionarioService;
 
     public List<Funcionario> getAllFuncs() {
-        return funcionarioService.getAllFuncs();
+        return funcionarioService.getAllFuncionarios();
     }
 
 }

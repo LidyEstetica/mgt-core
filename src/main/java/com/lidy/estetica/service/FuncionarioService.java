@@ -14,7 +14,7 @@ public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
 
-    public List<Funcionario> getAllFuncs() {
+    public List<Funcionario> getAllFuncionarios() {
         return funcionarioRepository.findAll();
     }
 

@@ -23,4 +23,8 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
 
     @Query("SELECT a FROM Agendamento a WHERE a.data = :dateTime AND a.funcionario.id = :idFuncionario")
     List<Agendamento> findDisponibility(@Param("dateTime") LocalDateTime dateTime, int idFuncionario);
+
+    List<Agendamento> findByData(LocalDate data);
+    boolean existsByClienteId(Integer clienteId);
+    List<Agendamento> findByClienteIdOrderByDataAsc(Integer clienteId);
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/procedimentos")
+@RequestMapping("/api/v1/procedimentos")
 public class ProcedimentoController {
 
     private ProcedimentoUseCase procedimentoUseCase;

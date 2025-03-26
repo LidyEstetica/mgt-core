@@ -1,5 +1,6 @@
 package com.lidy.estetica.service;
 
+import com.lidy.estetica.exception.AgendamentoException;
 import com.lidy.estetica.model.Agendamento;
 import com.lidy.estetica.repository.AgendamentoRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +35,30 @@ public class AgendamentoService {
     )
     public Agendamento createAgendamento(Agendamento agendamento) {
         log.info("Criando novo agendamento para cliente: {}", agendamento.getCliente().getId());
+        validateAgendamento(agendamento);
         try {
             return agendamentoRepository.save(agendamento);
         } catch (Exception e) {
             log.error("Erro ao criar agendamento: {}", e.getMessage());
-            throw e;
+            throw new AgendamentoException("Erro ao criar agendamento: " + e.getMessage());
+        }
+    }
+
+    private void validateAgendamento(Agendamento agendamento) {
+        if (agendamento.getData() == null || agendamento.getData().isBefore(LocalDateTime.now())) {
+            throw new AgendamentoException("Data do agendamento inválida");
+        }
+        if (agendamento.getProcedimento() == null) {
+            throw new AgendamentoException("Procedimento não informado");
+        }
+        if (agendamento.getQuantidade() <= 0) {
+            throw new AgendamentoException("Quantidade de procedimentos deve ser maior que zero");
+        }
+        if (agendamento.getCliente() == null) {
+            throw new AgendamentoException("Cliente não informado");
+        }
+        if (agendamento.getFuncionario() == null) {
+            throw new AgendamentoException("Funcionário não informado");
         }
     }
 
@@ -71,5 +91,9 @@ public class AgendamentoService {
     public void deleteAgendamento(Integer id) {
         log.info("Deletando agendamento com ID: {}", id);
         agendamentoRepository.deleteById(id);
+    }
+
+    public List<Agendamento> getAgendamentosByClienteId(Integer clienteId) {
+        return agendamentoRepository.findByClienteIdOrderByDataAsc(clienteId);
     }
 }

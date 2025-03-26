@@ -99,4 +99,9 @@ public class AgendamentoController {
         agendamentoUseCase.deleteAgendamento(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<List<Agendamento>> getAgendamentosByClienteId(@PathVariable Integer clienteId) {
+        return ResponseEntity.ok(agendamentoUseCase.getAgendamentosByClienteId(clienteId));
+    }
 }
